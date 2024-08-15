@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <div class="flex flex-col h-screen w-full">
+      <!-- Header -->
+      <div class="flex items-center justify-between p-4 bg-gray-800 text-white">
+        <div class="flex items-center gap-3">
+          <img
+            class="h-8 w-8 rounded-full object-cover"
+            src="/images/default.jpg"
+            alt="User Avatar"
+            class="rounded-full mr-3"
+          />
+          <h1 class="text-xl font-semibold">Hardik Sisodiya</h1>
+        </div>
+        <button
+          class="flex items-center bg-blue-600 hover:bg-blue-500 text-white py-2 px-4 rounded"
+        >
+          Video Call
+        </button>
+      </div>
+
+      <!-- Chat Area -->
+      <div class="flex-1 p-6 overflow-y-auto bg-gray-100">
+        <!-- Incoming Message -->
+        <div class="flex items-start mb-4">
+          <img
+            src="/images/default.jpg"
+            alt="User Avatar"
+            class="mr-3 h-10 w-10 rounded-full object-cover"
+          />
+          <div>
+            <p class="text-gray-700 bg-white p-4 rounded-lg shadow-sm">
+              Hey, how are you?
+            </p>
+            <span class="text-xs text-gray-500">12:45 PM</span>
+          </div>
+        </div>
+
+        <!-- Outgoing Message -->
+        <div class="flex items-start justify-end mb-4">
+          <div class="text-right">
+            <p class="text-white bg-blue-600 p-4 rounded-lg shadow-sm">
+              I'm good, thanks! What about you?
+            </p>
+            <span class="text-xs text-gray-500">12:46 PM</span>
+          </div>
+          <img
+            src="/images/default.jpg"
+            alt="User Avatar"
+            class="ml-3 h-10 w-10 rounded-full object-cover"
+          />
+        </div>
+      </div>
+
+      <!-- Input Area -->
+      <div class="flex items-center p-4 bg-white border-t border-gray-300">
+        <input
+          type="text"
+          class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+          placeholder="Type a message..."
+        />
+        <button
+          class="ml-4 bg-blue-600 hover:bg-blue-500 text-white py-2 px-4 rounded-lg"
+        >
+          Send
+        </button>
+      </div>
+    </div>
+    <script
+      src="https://cdn.socket.io/4.7.5/socket.io.min.js"
+      integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO"
+      crossorigin="anonymous"
+    ></script>
+    <script src="/js/index.js"></script>
+  </body>
+</html>

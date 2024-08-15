@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <div
+      class="loader fixed top-0 left-0 h-[100vh] w-full bg-zinc-900 flex justify-center items-center"
+    >
+      <div class="box p-6 flex flex-col gap-2">
+        <h1 class="text-zinc-200 text-5xl font-bold">Let's start</h1>
+        <form action="/chat" method="post" class="flex flex-col gap-2">
+          <input
+            autocomplete="off"
+            class="name mt-3 bg-zinc-100 p-2 rounded-md text-zinc-900 outline-none border-none"
+            name="name"
+            type="text"
+            placeholder="Enter your name"
+          />
+          <input
+            type="submit"
+            class="px-6 py-2 bg-blue-500 rounded-md text-white font-semibold"
+            value="Join the conversation"
+          />
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const username = document.querySelector(".name");
+
+      document.querySelector("form").addEventListener("submit", (event) => {
+        if (username.value.length === 0) {
+          username.style.border = "2px solid red";
+          event.preventDefault();
+        }
+      });
+
+      // Disable paste event
+      username.addEventListener("paste", function (event) {
+        event.preventDefault();
+        alert("Pasting is disabled!");
+      });
+
+      username.addEventListener("input", (event) => {
+        if (event.data === " " && event.target.value.length === 1) {
+          username.value = "";
+        } else if (event.target.value.length > 0) {
+          username.style.border = "0px solid red";
+        } else {
+          event.target.value = event.target.value.replace(" ", "_");
+        }
+      });
+    </script>
+  </body>
+</html>
