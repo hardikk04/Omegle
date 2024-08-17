@@ -9,9 +9,9 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 let waitingRoom = [];
-const users = {};
+const users = [];
 
-let peersCount = 1;
+let peersCount = 0;
 
 io.on("connection", (socket) => {
   socket.on("user-join", (user) => {
@@ -19,12 +19,20 @@ io.on("connection", (socket) => {
       const roomId = uuidv4();
       socket.join(roomId);
       waitingRoom[0].join(roomId);
-
-      io.to(roomId).emit("room-name", roomId);
+      users[peersCount - 1].roomId = roomId;
+      io.to(roomId).emit("room-name", users[peersCount - 1]);
       waitingRoom = [];
     } else {
       waitingRoom.push(socket);
     }
+  });
+
+  socket.on("room-msg", (msg) => {
+    io.to(users[peersCount - 1].roomId).emit("send-msg", {
+      msg,
+      socketId: socket.id,
+      time: socket.handshake.time,
+    });
   });
 });
 
@@ -44,19 +52,16 @@ app.post("/chat", (req, res) => {
     tempUser = req.body.name;
     tempCount++;
   } else if (tempCount === 2) {
-    users[`peers${peersCount}`] = {
-      p1: tempUser,
-      p2: req.body.name,
-    };
+    users.push({
+      p1: { name: tempUser },
+      p2: { name: req.body.name },
+    });
     tempUser: "";
     tempCount = 1;
     peersCount++;
   }
 
-  console.log(users);
-  
-
-  res.render("chat");
+  res.render("chat", { username: req.body.name });
 });
 
 server.listen(3000, () => {
