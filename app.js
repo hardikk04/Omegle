@@ -28,11 +28,15 @@ io.on("connection", (socket) => {
   });
 
   socket.on("room-msg", (msg) => {
-    io.to(users[peersCount - 1].roomId).emit("send-msg", {
-      msg,
-      socketId: socket.id,
-      time: socket.handshake.time,
-    });
+    try {
+      io.to(users[peersCount - 1].roomId).emit("send-msg", {
+        msg,
+        socketId: socket.id,
+        time: socket.handshake.time,
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
   });
 });
 
