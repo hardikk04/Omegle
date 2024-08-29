@@ -1,0 +1,19 @@
+/* 
+Raw css
+*/
+video {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  display: none;
+}
+
+.small-frame {
+  position: absolute;
+  bottom: 5%;
+  right: 2.5%;
+  height: 30vh;
+  width: 25vw;
+  background-color: salmon;
+  z-index: 99;
+}

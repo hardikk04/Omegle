@@ -26,11 +26,6 @@ socket.on("send-msg", (data) => {
   if (data.socketId !== socket.id) {
     chatContainer.innerHTML += `
         <div class="reciver-container flex items-start justify-start mb-4">
-     <img
-            src="/images/default.jpg"
-            alt="User Avatar"
-            class="mr-3 h-10 w-10 rounded-full object-cover"
-          />
           <div>
             <p
               class="recive-msg text-gray-700 bg-white p-4 rounded-lg shadow-sm"
@@ -59,14 +54,153 @@ document.querySelector("form").addEventListener("submit", (event) => {
             </p>
             <span class="text-xs text-gray-500"></span>
           </div>
-          <img
-            src="/images/default.jpg"
-            alt="User Avatar"
-            class="ml-3 h-10 w-10 rounded-full object-cover"
-          />
           </div>
         </div>`;
 
   socket.emit("room-msg", msg.value);
   msg.value = "";
+});
+
+// WebRTC
+
+const rtcSettings = {
+  iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+};
+
+let local = null;
+let remote = null;
+let peerConnection = null;
+let inCall = false;
+
+const initialize = async () => {
+  socket.on("signalingMessage", handleSignalingMessage);
+
+  try {
+    local = await navigator.mediaDevices.getUserMedia({
+      audio: false,
+      video: true,
+    });
+
+    document.querySelector(".local-video").srcObject = local;
+    document.querySelector(".local-video").style.display = "block";
+
+    initiateOffer();
+
+    inCall = true;
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+const initiateOffer = async () => {
+  await createPeerConnection();
+
+  try {
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
+    socket.emit("signalingMessage", {
+      roomId,
+      message: JSON.stringify({
+        type: "offer",
+        offer,
+      }),
+    });
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+const createPeerConnection = async () => {
+  peerConnection = new RTCPeerConnection(rtcSettings);
+
+  remote = new MediaStream();
+
+  document.querySelector(".remote-video").srcObject = remote;
+  document.querySelector(".remote-video").style.display = "block";
+  document.querySelector(".local-video").classList.add("small-frame");
+
+  local.getTracks().forEach((track) => {
+    peerConnection.addTrack(track, local);
+  });
+
+  peerConnection.ontrack = (event) => {
+    event.streams[0].getTracks().forEach((track) => {
+      remote.addTrack(track);
+    });
+  };
+
+  peerConnection.onicecandidate = (event) => {
+    if (event.candidate) {
+      socket.emit("signalingMessage", {
+        roomId,
+        message: JSON.stringify({
+          type: "candidate",
+          candidate: event.candidate,
+        }),
+      });
+    }
+  };
+};
+
+const handleSignalingMessage = async (message) => {
+  const { offer, type, candidate, answer } = JSON.parse(message);
+
+  if (type === "offer") handleOffer(offer);
+  if (type === "answer") handleOffer(answer);
+  if (type === "candidate" && peerConnection) {
+    try {
+      await peerConnection.addIceCandidate(candidate);
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+};
+
+const handleOffer = async (offer) => {
+  await createPeerConnection();
+  try {
+    await peerConnection.setRemoteDescription(offer);
+    const answer = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answer);
+    socket.emit("signalingMessage", {
+      roomId,
+      message: JSON.stringify({
+        type: "answer",
+        answer,
+      }),
+    });
+    inCall = true;
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+const handleAnswer = async (answer) => {
+  try {
+    await peerConnection.setRemoteDescription(answer);
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+document.querySelector(".videocall-btn").addEventListener("click", () => {
+  socket.emit("startVideoCall", { roomId });
+});
+
+socket.on("incomingCall", () => {
+  document.querySelector(".incoming-call").classList.remove("hidden");
+});
+
+document.querySelector(".accept-call").addEventListener("click", () => {
+  document.querySelector(".incoming-call").classList.add("hidden");
+  initialize();
+
+  document.querySelector(".videoblock").classList.remove("hidden");
+
+  socket.emit("acceptCall", { roomId });
+});
+
+socket.on("callAccepted", () => {
+  initialize();
+  document.querySelector(".videoblock").classList.remove("hidden");
 });

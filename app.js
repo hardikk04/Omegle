@@ -14,6 +14,10 @@ const users = [];
 let peersCount = 0;
 
 io.on("connection", (socket) => {
+  socket.on("signalingMessage", (data) => {
+    socket.broadcast.to(data.roomId).emit("signalingMessage", data.message);
+  });
+
   socket.on("user-join", (user) => {
     if (waitingRoom.length > 0) {
       const roomId = uuidv4();
@@ -37,6 +41,15 @@ io.on("connection", (socket) => {
     } catch (error) {
       console.log(error.message);
     }
+  });
+
+  socket.on("startVideoCall", ({ roomId }) => {
+    console.log("start video call");
+    socket.broadcast.to(roomId).emit("incomingCall");
+  });
+
+  socket.on("acceptCall", ({ roomId }) => {
+    socket.broadcast.to(roomId).emit("callAccepted");
   });
 });
 

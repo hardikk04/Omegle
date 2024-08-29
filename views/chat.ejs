@@ -4,10 +4,53 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chat</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/index.css" />
   </head>
   <body>
     <div class="flex flex-col h-screen w-full">
+      <div class="videoblock fixed hidden z-10 w-full h-screen">
+        <div class="videos">
+          <video class="local-video" playsinline autoplay></video>
+          <video class="remote-video" playsinline autoplay></video>
+        </div>
+
+        <div
+          class="controls absolute left-1/2 -translate-x-1/2 bottom-[5%] flex gap-[2.5vw] text-[2vw]"
+        >
+          <div class="control-container camera-button">
+            <i class="ri-video-on-fill"></i>
+          </div>
+          <div class="control-container hangup">
+            <i class="ri-phone-fill"></i>
+          </div>
+          <div class="control-container mic">
+            <i class="ri-mic-fill"></i>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="incoming-call hidden absolute top-0 left-0 w-full h-screen z-[100] bg-black flex justify-center items-center"
+      >
+        <div class="bg-white p-8 rounded-md text-center">
+          <p class="mb-4">Incoming Video Call</p>
+          <button
+            class="accept-call bg-green-500 text-white px-4 py-2 rounded-md"
+          >
+            Accept
+          </button>
+          <button
+            class="reject-call bg-red-500 text-white px-4 py-2 rounded-md"
+          >
+            Reject
+          </button>
+        </div>
+      </div>
       <!-- Header -->
       <div class="flex items-center justify-between p-4 bg-gray-800 text-white">
         <div class="flex items-center gap-3">
@@ -20,7 +63,7 @@
           <h1 class="username text-xl font-semibold"><%= username %></h1>
         </div>
         <button
-          class="flex items-center bg-blue-600 hover:bg-blue-500 text-white py-2 px-4 rounded"
+          class="videocall-btn flex items-center bg-blue-600 hover:bg-blue-500 text-white py-2 px-4 rounded"
         >
           Video Call
         </button>
@@ -28,7 +71,6 @@
 
       <!-- Chat Area -->
       <div class="chat-container flex-1 p-6 overflow-y-auto bg-gray-100">
-        
         <!-- Incoming Message -->
         <h1
           class="waiting-msg absolute font-semibold top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-zinc-600"
@@ -53,6 +95,7 @@
         />
       </form>
     </div>
+
     <script
       src="https://cdn.socket.io/4.7.5/socket.io.min.js"
       integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO"
