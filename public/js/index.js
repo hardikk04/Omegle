@@ -72,19 +72,19 @@ let remote = null;
 let peerConnection = null;
 let inCall = false;
 
-const initialize = async () => {
+const initialize = async (flag) => {
   socket.on("signalingMessage", handleSignalingMessage);
 
   try {
     local = await navigator.mediaDevices.getUserMedia({
-      audio: false,
+      audio: true,
       video: true,
     });
 
     document.querySelector(".local-video").srcObject = local;
     document.querySelector(".local-video").style.display = "block";
 
-    initiateOffer();
+    initiateOffer(flag);
 
     inCall = true;
   } catch (error) {
@@ -92,19 +92,21 @@ const initialize = async () => {
   }
 };
 
-const initiateOffer = async () => {
+const initiateOffer = async (flag) => {
   await createPeerConnection();
 
   try {
-    const offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(offer);
-    socket.emit("signalingMessage", {
-      roomId,
-      message: JSON.stringify({
-        type: "offer",
-        offer,
-      }),
-    });
+    if (flag) {
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+      socket.emit("signalingMessage", {
+        roomId,
+        message: JSON.stringify({
+          type: "offer",
+          offer,
+        }),
+      });
+    }
   } catch (error) {
     console.log(error.message);
   }
@@ -157,7 +159,6 @@ const handleSignalingMessage = async (message) => {
 };
 
 const handleOffer = async (offer) => {
-  await createPeerConnection();
   try {
     await peerConnection.setRemoteDescription(offer);
     const answer = await peerConnection.createAnswer();
@@ -193,7 +194,7 @@ socket.on("incomingCall", () => {
 
 document.querySelector(".accept-call").addEventListener("click", () => {
   document.querySelector(".incoming-call").classList.add("hidden");
-  initialize();
+  initialize(false);
 
   document.querySelector(".videoblock").classList.remove("hidden");
 
@@ -201,6 +202,6 @@ document.querySelector(".accept-call").addEventListener("click", () => {
 });
 
 socket.on("callAccepted", () => {
-  initialize();
+  initialize(true);
   document.querySelector(".videoblock").classList.remove("hidden");
 });
